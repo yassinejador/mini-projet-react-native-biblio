@@ -1,5 +1,5 @@
 // components/NavigationDrawer.js
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
 import HomeScreen from '../screens/HomeScreen';
 import BooksScreen from '../screens/BooksScreen';
@@ -9,48 +9,59 @@ import RegisterScreen from '../screens/RegisterScreen';
 import { AuthContext } from '../utils/AuthContext';
 import { StyleSheet, View } from 'react-native';
 import { Avatar, Caption, Title } from 'react-native-paper';
-import GuestOnlyRoute from '../components/GuestOnlyRoute';
+import { getToken } from '../utils/auth';
 
 
 const Drawer = createDrawerNavigator();
 
 export default function NavigationDrawer() {
-  const { isAuthenticated, logout } = useContext(AuthContext);
+  const { isAuthenticated, logout } = useContext(AuthContext),
+  [loading, setLoading] = useState(true),
+  [user, setUser] = useState({});
+  useEffect(() => {
+  
+      const fetchUser = async () => {
+        try {
+          setLoading(true);
+          const token = await getToken();
+          if (!token) throw new Error("No token found");
+            const response = await fetch(`http://192.168.1.155:3000/user/profile`,{
+              method: "GET",
+              headers: {
+                "Authorization": `Bearer ${token}`,
+              }
+            });
+            setUser(await response.json());
+          } catch (error) {
+            console.error(error);
+          } finally {
+            setLoading(false);
+          }
+        };
+        fetchUser();
+    }, []);
 
   return (
     <Drawer.Navigator
       initialRouteName="Home"
-      drawerContent={(props) => <CustomDrawerContent {...props} isAuthenticated={isAuthenticated} logout={logout} />}
+      drawerContent={(props) => <CustomDrawerContent {...props} isAuthenticated={isAuthenticated} user = {user} logout={logout} />}
     >
       <Drawer.Screen name="Home" component={HomeScreen} />
-      <Drawer.Screen name="Books" component={BooksScreen} />
-      <Drawer.Screen name="Loans" component={LoanScreen} />
-
+        <Drawer.Screen name="Books" component={BooksScreen} />
+        <Drawer.Screen name="Loans" component={LoanScreen} />
       {!isAuthenticated && (
         <>
-          <Drawer.Screen name="Login">
-          {(props) => (
-            <GuestOnlyRoute navigation={props.navigation}>
-              <LoginScreen {...props} />
-            </GuestOnlyRoute>
-          )}
-        </Drawer.Screen>
-
-        <Drawer.Screen name="Register">
-          {(props) => (
-            <GuestOnlyRoute navigation={props.navigation}>
-              <RegisterScreen {...props} />
-            </GuestOnlyRoute>
-          )}
-        </Drawer.Screen>
+        <Drawer.Screen name="Login" component={LoginScreen} />
+          <Drawer.Screen name="register" component={RegisterScreen} />
         </>
-      )}
+      )
+      }
     </Drawer.Navigator>
   );
 }
 
 function CustomDrawerContent(props) {
-  const { isAuthenticated, logout } = props;
+  const { isAuthenticated, user, logout } = props;
 
   return (
     <View style={{ flex: 1 }}>
@@ -61,17 +72,16 @@ function CustomDrawerContent(props) {
             size={50}
           />
           <Title style={styles.title}>
-            {isAuthenticated ? 'John Doe' : 'Welcome Guest'}
+            {isAuthenticated ? user.username : 'Welcome Guest'}
           </Title>
           <Caption style={styles.caption}>
-            {isAuthenticated ? '@johndoe' : 'Please log in'}
+            {isAuthenticated ? user.email : 'Please log in'}
           </Caption>
         </View>
 
         <DrawerItemList {...props} />
       </DrawerContentScrollView>
 
-      {/* 👇 Logout button pinned at bottom */}
       {isAuthenticated && (
         <View style={styles.bottomDrawerSection}>
           <DrawerItem

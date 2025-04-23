@@ -8,16 +8,54 @@ import {
   Button, 
   Text 
 } from 'react-native-paper';
+import { getToken } from '../utils/auth';
 
 const BooksScreen = ({ navigation }) => {
-  const [books, setBooks] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [books, setBooks] = useState([]),
+  [loading, setLoading] = useState(true),
+  handleEmprunter = async (bookId) => {
+    try {
+      setLoading(true);
+      
+      const token = await getToken();
+      if (!token) throw new Error("No token found");
+  
+      const response = await fetch(`http://192.168.1.155:3000/loans`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ bookId }),
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Bad request:", errorText);
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      setBooks(books.filter(b=>b._id!=bookId))
+  
+    } catch (error) {
+      console.error("Failed to borrow book:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
 
   useEffect(() => {
+
     const fetchBooks = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://192.168.1.155:3000/books`);
+        const token = await getToken();
+      if (!token) throw new Error("No token found");
+        const response = await fetch(`http://192.168.1.155:3000/books/disponibles`,{
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          }
+        });
         setBooks(await response.json());
   
       } catch (error) {
@@ -46,13 +84,13 @@ const BooksScreen = ({ navigation }) => {
           renderItem={({ item }) => (
             <Card style={styles.card}>
               <Card.Content>
-                <Title>{item.title}</Title>
+                <Title>{item._id}</Title>
                 <Paragraph>{item.author}</Paragraph>
               </Card.Content>
               <Card.Actions>
                 <Button 
                   mode="contained" 
-                  onPress={() => navigation.navigate('Loan', { bookId: item._id })}
+                  onPress={() =>handleEmprunter(item._id)}
                 >
                   Emprunter
                 </Button>

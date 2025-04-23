@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { 
   Appbar, 
   Card, 
@@ -10,6 +10,7 @@ import {
   List,
   Divider
 } from 'react-native-paper';
+import { getToken } from '../utils/auth';
 
 const LoanScreen = ({ navigation, route }) => {
   const [loans, setLoans] = useState([]);
@@ -17,11 +18,23 @@ const LoanScreen = ({ navigation, route }) => {
 
   const returnBook = async (loanId) => {
     try {
-      await fetch(`http://192.168.1.155:3000/loans/${loanId}/return`, {}, {
-        headers: { Authorization: `Bearer ${getToken()}` }
+      setLoading(true);
+      const token = await getToken();
+      const response = await fetch(`http://192.168.1.155:3000/loans/${loanId}/return`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      setLoans(loans.filter(l=>l._id!=loanId))
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -29,18 +42,32 @@ const LoanScreen = ({ navigation, route }) => {
     const fetchLoans = async () => {
       try {
         setLoading(true);
+        const token = await getToken();
+        if (!token) throw new Error("No token found");
+  
         const response = await fetch('http://192.168.1.155:3000/loans/my-loans', {
-          headers: { Authorization: `Bearer ${getToken()}` }
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
-        setLoans(await response.json());
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+  
+        const data = await response.json();
+        setLoans(data);
       } catch (error) {
         console.error(error);
       } finally {
         setLoading(false);
       }
     };
+  
     fetchLoans();
   }, []);
+  
 
   return (
     <View style={styles.container}>

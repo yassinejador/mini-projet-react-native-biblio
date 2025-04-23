@@ -14,16 +14,6 @@ router.post('/', auth, async (req, res) => {
   }
 });
 
-// Lister tous les livres
-router.get('/',auth, async (req, res) => {
-  try {
-    const books = await Book.find({});
-    res.send(books);
-  } catch (error) {
-    res.status(500).send();
-  }
-});
-
 // Lister les livres disponible
 router.get('/disponibles',auth, async (req, res) => {
   try {

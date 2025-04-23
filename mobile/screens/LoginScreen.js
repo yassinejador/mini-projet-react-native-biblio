@@ -57,10 +57,10 @@ const LoginScreen = ({ navigation }) => {
                 onChangeText={setPassword}
                 secureTextEntry
             />
-            <Button title="Login" onPress={handleLogin} />
+            <Button title="Se Connect" onPress={handleLogin} />
             <Button
-                title="Se Connect"
-                onPress={() => navigation.navigate("Register")}
+                title="S'inscrire"
+                onPress={() => navigation.navigate("register")}
             />
         </View>
     );

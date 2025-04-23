@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Card, Title, Paragraph, Button } from 'react-native-paper';
+import { AuthContext } from '../utils/AuthContext';
 
 const HomeScreen = ({ navigation }) => {
+  const { isAuthenticated } = useContext(AuthContext);
   return (
     <View style={styles.container}>
       <Card style={styles.card}>
@@ -12,7 +14,8 @@ const HomeScreen = ({ navigation }) => {
             Gérez vos emprunts de livres facilement avec cette application.
           </Paragraph>
         </Card.Content>
-        <Card.Actions>
+        {isAuthenticated ?(
+          <Card.Actions>
           <Button 
             mode="contained" 
             onPress={() => navigation.navigate('Books')}
@@ -22,12 +25,31 @@ const HomeScreen = ({ navigation }) => {
           </Button>
           <Button 
             mode="outlined" 
-            onPress={() => navigation.navigate('Mes Emprunts')}
+            onPress={() => navigation.navigate('Loans')}
             style={styles.button}
           >
             Mes emprunts
           </Button>
         </Card.Actions>
+        ):
+        <Card.Actions>
+          <Button 
+            mode="contained" 
+            onPress={() => navigation.navigate('Login')}
+            style={styles.button}
+          >
+            Se Connecter
+          </Button>
+          <Button 
+            mode="outlined" 
+            onPress={() => navigation.navigate('register')}
+            style={styles.button}
+          >
+            S'inscrire
+          </Button>
+        </Card.Actions>
+        }
+        
       </Card>
     </View>
   );

@@ -25,6 +25,7 @@ const Loan = require('./models/Loan');
 app.use('/auth', require('./routes/auth'));
 app.use('/books', require('./routes/books'));
 app.use('/loans', require('./routes/loans'));
+app.use('/user', require('./routes/user'));
 
 const PORT = 3000;
 app.listen(PORT, () => {

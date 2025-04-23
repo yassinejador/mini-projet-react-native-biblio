@@ -43,7 +43,7 @@ router.post('/', auth, async (req, res) => {
 });
 
 // Rendre un livre
-router.patch('/:id/return', async (req, res) => {
+router.patch('/:id/return',auth, async (req, res) => {
   try {
     const loan = await Loan.findById(req.params.id);
     if (!loan || loan.user.toString() !== req.user.id) {
@@ -57,8 +57,8 @@ router.patch('/:id/return', async (req, res) => {
     const book = await Book.findById(loan.book);
     book.available = true;
     await book.save();
-
-    res.send(loan);
+    const loans = await Loan.find({user: req.user.id});
+    res.send(loans);
   } catch (error) {
     res.status(400).send(error);
   }
