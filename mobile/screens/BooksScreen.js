@@ -84,7 +84,7 @@ const BooksScreen = ({ navigation }) => {
           renderItem={({ item }) => (
             <Card style={styles.card}>
               <Card.Content>
-                <Title>{item._id}</Title>
+                <Title>{item.title}</Title>
                 <Paragraph>{item.author}</Paragraph>
               </Card.Content>
               <Card.Actions>

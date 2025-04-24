@@ -11,6 +11,8 @@ import {
   Divider
 } from 'react-native-paper';
 import { getToken } from '../utils/auth';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 
 const LoanScreen = ({ navigation, route }) => {
   const [loans, setLoans] = useState([]);
@@ -38,35 +40,43 @@ const LoanScreen = ({ navigation, route }) => {
     }
   };
 
-  useEffect(() => {
-    const fetchLoans = async () => {
-      try {
-        setLoading(true);
-        const token = await getToken();
-        if (!token) throw new Error("No token found");
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
   
-        const response = await fetch('http://192.168.1.155:3000/loans/my-loans', {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+      const fetchLoans = async () => {
+        try {
+          setLoading(true);
+          const token = await getToken();
+          const response = await fetch('http://192.168.1.155:3000/loans/my-loans', {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
   
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  
+          const data = await response.json();
+          if (isActive) {
+            setLoans(data);
+          }
+        } catch (error) {
+          console.error(error);
+        } finally {
+          if (isActive) {
+            setLoading(false);
+          }
         }
+      };
   
-        const data = await response.json();
-        setLoans(data);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      fetchLoans();
   
-    fetchLoans();
-  }, []);
+      return () => {
+        isActive = false;
+      };
+    }, [])
+  );
   
 
   return (
