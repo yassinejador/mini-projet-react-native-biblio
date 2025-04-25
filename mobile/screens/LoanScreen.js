@@ -22,7 +22,7 @@ const LoanScreen = ({ navigation, route }) => {
     try {
       setLoading(true);
       const token = await getToken();
-      const response = await fetch(`http://192.168.1.155:3000/loans/${loanId}/return`, {
+      const response = await fetch(`http://192.168.34.165:3000/loans/${loanId}/return`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -48,7 +48,7 @@ const LoanScreen = ({ navigation, route }) => {
         try {
           setLoading(true);
           const token = await getToken();
-          const response = await fetch('http://192.168.1.155:3000/loans/my-loans', {
+          const response = await fetch('http://192.168.34.165:3000/loans/my-loans', {
             method: "GET",
             headers: {
               Authorization: `Bearer ${token}`,

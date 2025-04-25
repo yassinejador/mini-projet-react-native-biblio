@@ -25,7 +25,7 @@ export default function NavigationDrawer() {
           setLoading(true);
           const token = await getToken();
           if (!token) throw new Error("No token found");
-            const response = await fetch(`http://192.168.1.155:3000/user/profile`,{
+            const response = await fetch(`http://192.168.34.165:3000/user/profile`,{
               method: "GET",
               headers: {
                 "Authorization": `Bearer ${token}`,

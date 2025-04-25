@@ -20,7 +20,7 @@ const BooksScreen = ({ navigation }) => {
       const token = await getToken();
       if (!token) throw new Error("No token found");
   
-      const response = await fetch(`http://192.168.1.155:3000/loans`, {
+      const response = await fetch(`http://192.168.34.165:3000/loans`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -51,7 +51,7 @@ const BooksScreen = ({ navigation }) => {
         setLoading(true);
         const token = await getToken();
       if (!token) throw new Error("No token found");
-        const response = await fetch(`http://192.168.1.155:3000/books/disponibles`,{
+        const response = await fetch(`http://192.168.34.165:3000/books/disponibles`,{
           headers: {
             "Authorization": `Bearer ${token}`,
           }
